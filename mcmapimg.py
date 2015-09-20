@@ -32,14 +32,14 @@ def main():
         sys.exit(2)
 
     in_file = sys.stdin if args.in_file == '-' \
-         else gzip.open(args.in_file)
+        else open(args.in_file)
     out_file = sys.stdout if args.out_file == '-' \
         else open(args.out_file, 'w')
     with in_file, out_file:
         map_to_img(in_file, out_file, version=args.version)
 
 def map_to_img(nbt_file, img_file, version='1.8.1'):
-    nbt = pynbt.NBTFile(io=nbt_file)
+    nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
     width, height = nbt['data']['width'].value, nbt['data']['height'].value
     img = PIL.Image.new('RGBA', (width, height))
     colours = nbt['data']['colors'].value

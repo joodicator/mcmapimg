@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Minecraft Map File to Image Converter</title>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" action="map.png" enctype="multipart/form-data">
+        <p>
+            Select a map data file, such as <tt>world/data/map_0.dat</tt>:
+            <br>
+            <input type="file" name="in_file">
+        </p>
+        <p>
+            Which version of Minecraft was this map created by?
+            <br>
+            <input type="radio" id="version_1.8.1" name="version" value="1.8.1" checked>
+            <label for="version_1.8.1">1.8.1 or later</label>
+            <br>
+            <input type="radio" id="version_1.8.0" name="version" value="1.8.0">
+            <label for="version_1.8.0">1.8.0 or earlier</label>
+        </p>
+        <p>
+            <input type="submit" value="Convert">
+        </p>
+    </form>
+</body>

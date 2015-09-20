@@ -1,0 +1,26 @@
+#!/usr/bin/env python2.7
+
+import sys
+import cgi
+import cgitb
+import cStringIO
+
+import mcmapimg
+
+cgitb.enable()
+fields = cgi.FieldStorage()
+
+try:
+    if fields['version'].value not in mcmapimg.VERSIONS:
+        raise Exception('Unknown version: "%s".' % fields['version'])
+    out_buffer = cStringIO.StringIO()
+    mcmapimg.map_to_img(fields['in_file'].file, out_buffer)
+    out_data = out_buffer.getvalue()
+except:
+    print 'Content-Type: text/html'
+    print ''
+    raise
+
+print 'Content-Type: image/png'
+print ''
+sys.stdout.write(out_data)
