@@ -36,25 +36,28 @@ def main():
     out_file = sys.stdout if args.out_file == '-' \
         else open(args.out_file, 'w')
     with in_file, out_file:
-        map_to_img(in_file, out_file, version=args.version)
+        map_to_img(in_file, out_file, version=args.version, warn=True)
 
-def map_to_img(nbt_file, img_file, version='1.8.1'):
+def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
     nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
     width, height = nbt['data']['width'].value, nbt['data']['height'].value
+    map_data_to_img(nbt['data']['colors'].value, img_file,
+        version=version, warn=warn, width=width, height=height)
+
+def map_data_to_img(data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128):
     img = PIL.Image.new('RGBA', (width, height))
-    colours = nbt['data']['colors'].value
     unknown = set()
     for i in xrange(width * height):
-        colour_id = colours[i]
+        colour_id = data[i]
         colour = colour_id_to_rgba(colour_id, version)
         if colour is None:
-            if colour_id not in unknown:
+            if colour_id not in unknown and warn:
                 unknown.add(colour_id)
                 print('Warning: unknown colour ID %d.'
                     % colour_id, file=sys.stderr)
             colour = ERROR_COLOUR
         img.putpixel(divmod(i, width), colour)
-    img.save(img_file, 'png')
+    img.save(img_file, 'png')    
 
 def colour_id_to_rgba(id, version):
     base_id, shade_id = divmod(id, 4)
