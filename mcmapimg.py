@@ -44,7 +44,9 @@ def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
     map_data_to_img(nbt['data']['colors'].value, img_file,
         version=version, warn=warn, width=width, height=height)
 
-def map_data_to_img(data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128):
+def map_data_to_img(
+    data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128
+):
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set()
     for i in xrange(width * height):
