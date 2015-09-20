@@ -58,7 +58,8 @@ def map_data_to_img(
                 print('Warning: unknown colour ID %d.'
                     % colour_id, file=sys.stderr)
             colour = ERROR_COLOUR
-        img.putpixel(divmod(i, width), colour)
+        y, x = divmod(i, width)
+        img.putpixel((x, y), colour)
     img.save(img_file, 'png')    
 
 def colour_id_to_rgba(id, version):
