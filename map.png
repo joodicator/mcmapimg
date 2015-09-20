@@ -22,5 +22,6 @@ except:
     raise
 
 print 'Content-Type: image/png'
+print 'Cache-Control: no-store'
 print ''
 sys.stdout.write(out_data)
