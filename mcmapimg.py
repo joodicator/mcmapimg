@@ -9,6 +9,7 @@ import PIL.Image
 import pynbt
 
 from colours import base_colours
+from icons import get_icon
 
 DEFAULT_VERSION = '1.8.1'
 VERSIONS = '1.8.0', '1.8.1'
@@ -61,6 +62,16 @@ def map_data_to_img(
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
     img.save(img_file, 'png')    
+
+def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
+    img = PIL.Image.new('RGBA', (width*scale + 2*margin, height*scale + 2*margin))
+    icons = list(icons)
+    for (type, direction, (x, y)) in icons:
+        icon = get_icon(type, direction, scale)
+        point = (margin + ((x + width)*scale - icon.size[0])/2,
+                 margin + ((y + height)*scale - icon.size[1])/2)
+        img.paste(icon, point, icon)
+    img.save(img_file, 'png')
 
 def colour_id_to_rgba(id, version):
     base_id, shade_id = divmod(id, 4)
