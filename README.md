@@ -42,6 +42,6 @@ There are three ways to use this tool:
 3.  As a library directly from Python:
     ```
     python
-    >> import mcmapimg
-    >> help(mcmapimg)
+    >>> import mcmapimg
+    >>> help(mcmapimg)
     ```
