@@ -9,8 +9,8 @@ import os
 import PIL.Image
 import pynbt
 
-from colours import base_colours
-from icons import get_icon
+from .colours import base_colours
+from .icons import get_icon
 
 DEFAULT_VERSION = '1.8.1'
 VERSIONS = '1.8.0', '1.8.1'
