@@ -7,7 +7,6 @@ A command-line utility, web application, and Python library to convert Minecraft
 3. [Usage](#usage)
 
 ## Dependencies
-
 ### Required
 * [Python](http://python.org) 2.7
 * [Python Imaging Library](https://pypi.python.org/pypi/PIL)
