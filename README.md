@@ -8,7 +8,7 @@ A command-line utility, web application, and Python library to convert Minecraft
 
 ## Dependencies
 ### Required
-* [Python](http://python.org) 2.7
+* [Python](http://python.org) 2.7 or 3
 * [Python Imaging Library](https://pypi.python.org/pypi/PIL)
 * [PyNBT](//github.com/TkTech/PyNBT) (included as a Git submodule)
 

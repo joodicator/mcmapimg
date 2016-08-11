@@ -1,9 +1,10 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 from __future__ import print_function
 import argparse
 import gzip
 import sys
+import os
 
 import PIL.Image
 import pynbt
@@ -15,6 +16,11 @@ DEFAULT_VERSION = '1.8.1'
 VERSIONS = '1.8.0', '1.8.1'
 
 ERROR_COLOUR = 255,0,0,255
+
+try:
+    range = xrange
+except NameError:
+    pass
 
 def main():
     parser = argparse.ArgumentParser()
@@ -32,10 +38,16 @@ def main():
         print('Acceptable versions are: %s.' % ', '.join(VERSIONS))
         sys.exit(2)
 
-    in_file = sys.stdin if args.in_file == '-' \
-        else open(args.in_file)
-    out_file = sys.stdout if args.out_file == '-' \
-        else open(args.out_file, 'w')
+    if args.in_file == '-':
+        in_file = os.fdopen(sys.stdin.fileno(), 'rb')
+    else:
+        in_file = open(args.in_file, 'rb')
+
+    if args.out_file == '-':
+        out_file = os.fdopen(sys.stdout.fileno(), 'wb')
+    else:
+        out_file = open(args.out_file, 'wb')
+
     with in_file, out_file:
         map_to_img(in_file, out_file, version=args.version, warn=True)
 
@@ -50,7 +62,7 @@ def map_data_to_img(
 ):
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set()
-    for i in xrange(width * height):
+    for i in range(width * height):
         colour_id = data[i]
         colour = colour_id_to_rgba(colour_id, version)
         if colour is None:
@@ -68,8 +80,8 @@ def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
     icons = list(icons)
     for (type, direction, (x, y)) in icons:
         icon = get_icon(type, direction, scale)
-        point = (margin + ((x + width)*scale - icon.size[0])/2,
-                 margin + ((y + height)*scale - icon.size[1])/2)
+        point = (margin + ((x + width)*scale - icon.size[0])//2,
+                 margin + ((y + height)*scale - icon.size[1])//2)
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
 
@@ -84,7 +96,7 @@ def colour_id_to_rgba(id, version):
         255 if shade_id == 2 else \
         220 if shade_id == 4 and version == '1.8.0' else \
         134 if shade_id == 4 and version == '1.8.1' else None
-    r,g,b = (shade_mul*r)/255, (shade_mul*g)/255, (shade_mul*b)/255
+    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
     return r,g,b,a
 
 if __name__ == '__main__':
