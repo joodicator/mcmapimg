@@ -3,17 +3,18 @@
 import sys
 import os
 import cgi
+
 import cgitb
+cgitb.enable()
 
 try:
     from io import BytesIO as StringIO
 except ImportError:
     from cStringIO import StringIO
 
-import mcmapimg    
+from mcmapimg import mcmapimg    
 
 fields = cgi.FieldStorage()
-cgitb.enable()
 
 if fields['version'].value not in mcmapimg.VERSIONS:
     raise Exception('Unknown version: "%s".' % fields['version'])
@@ -24,5 +25,6 @@ out_data = out_buffer.getvalue()
 print('Content-Type: image/png')
 print('Cache-Control: no-store')
 print('')
+sys.stdout.flush()
 
 os.write(sys.stdout.fileno(), out_data)

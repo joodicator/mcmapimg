@@ -10,7 +10,7 @@ A command-line utility, web application, and Python library to convert Minecraft
 ### Required
 * [Python](http://python.org) 2.7 or 3
 * [Python Imaging Library](https://pypi.python.org/pypi/PIL)
-* [PyNBT](//github.com/TkTech/PyNBT) (included as a Git submodule)
+* [PyNBT](//github.com/TkTech/PyNBT)
 
 ### Optional
 * A [CGI](https://www.w3.org/CGI/)-capable web server (to run the web interface)
@@ -23,12 +23,6 @@ A command-line utility, web application, and Python library to convert Minecraft
     cd mcmapimg
     ```
 
-2.  Initialise the submodules:
-    ```
-    git submodule init
-    git submodule update
-    ```
-
 ## Usage
 There are three ways to use this tool:
 
@@ -37,7 +31,7 @@ There are three ways to use this tool:
     ./mcmapimg.py --help
     ```
 
-2.  Using the web interface: make accessible by a web server `index.htm` and `map.png` - the latter of which is an executable Python script and should be run as a CGI program by the web server - for example, under `http://localhost/mcmapimg`; then navigate to this URL and follow the instructions there.
+2.  Using the web interface: make accessible by a web server `index.htm` and `map.cgi` - the latter of which is an executable Python script and should be run as a CGI program by the web server - for example, under `http://localhost/mcmapimg`; then navigate to this URL and follow the instructions there.
 
 3.  As a library directly from Python:
     ```

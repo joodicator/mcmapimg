@@ -8,7 +8,7 @@ SIZE = 8
 
 def load_icons():
     icons = []
-    path = os.path.join(os.path.dirname(__file__), 'assets', 'map_icons.png')
+    path = os.path.join(os.path.dirname(__file__), '../assets/map_icons.png')
     with open(path, 'rb') as file:
         sheet = PIL.Image.open(file)
         sheet = sheet.convert('RGBA')
