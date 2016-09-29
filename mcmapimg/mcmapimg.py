@@ -59,15 +59,15 @@ def map_data_to_img(
     data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128
 ):
     img = PIL.Image.new('RGBA', (width, height))
-    unknown = set()
+    unknown = set() if warn else None
     for i in range(width * height):
         colour_id = data[i]
-        colour = colour_id_to_rgba(colour_id, version)
+        colour = colour_id_to_rgba(colour_id, version, unknown)
         if colour is None:
-            if colour_id not in unknown and warn:
-                unknown.add(colour_id)
-                print('Warning: unknown colour ID %d.'
-                    % colour_id, file=sys.stderr)
+            if warn and ('colour', colour_id) not in unknown:
+                unknown.add(('colour', colour_id))
+                print('Warning: unknown colour ID %d.' % colour_id,
+                      file=sys.stderr)
             colour = ERROR_COLOUR
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
@@ -83,7 +83,7 @@ def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
 
-def colour_id_to_rgba(id, version):
+def colour_id_to_rgba(id, version, unknown=None):
     base_id, shade_id = divmod(id, 4)
     if base_id not in base_colours:
         return None
@@ -92,7 +92,12 @@ def colour_id_to_rgba(id, version):
         180 if shade_id == 0 else \
         220 if shade_id == 1 else \
         255 if shade_id == 2 else \
-        220 if shade_id == 4 and version == '1.8.0' else \
-        134 if shade_id == 4 and version == '1.8.1' else None
-    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
+        220 if shade_id == 3 and version == '1.8.0' else \
+        135 if shade_id == 3 and version == '1.8.1' else None
+    if shade_mul is None:
+        if unknown is not None and ('shade', shade_id) not in unknown:
+            print('Warning: unknown shade ID %d.' % shade_id, file=sys.stderr)
+            unknown.add(('shade', shade_id))
+    else:
+        r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
     return r,g,b,a
