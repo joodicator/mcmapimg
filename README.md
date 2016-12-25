@@ -18,6 +18,7 @@ A command-line utility, web application, and Python library to convert Minecraft
 
 ## Installation
 1.  Clone this repository into an empty directory:
+
     ```
     git clone https://github.com/joodicator/mcmapimg
     cd mcmapimg
