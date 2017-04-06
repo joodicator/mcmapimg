@@ -74,7 +74,8 @@ def map_data_to_img(
     img.save(img_file, 'png')    
 
 def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
-    img = PIL.Image.new('RGBA', (width*scale + 2*margin, height*scale + 2*margin))
+    img = PIL.Image.new('RGBA', (
+        width*scale + 2*margin*scale, height*scale + 2*margin*scale))
     icons = list(icons)
     for (type, direction, (x, y)) in icons:
         icon = get_icon(type, direction, scale)
