@@ -84,7 +84,7 @@ def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
 
-def colour_id_to_rgba(id, version, unknown=None):
+def colour_id_to_rgba(id, version=VERSIONS[-1], unknown=None):
     base_id, shade_id = divmod(id, 4)
     if base_id not in base_colours:
         return None
