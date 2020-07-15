@@ -8,19 +8,18 @@ A command-line utility, web application, and Python library to convert Minecraft
 
 ## Dependencies
 ### Required
-* [Python](http://python.org) 2.7 or 3
-* [Python Imaging Library](https://pypi.python.org/pypi/PIL)
-* [PyNBT](//github.com/TkTech/PyNBT)
+* [Python](http://python.org) 3
+* [Python Imaging Library](https://pypi.org/project/PIL/)
+* [NBT](https://pypi.org/project/NBT/)
 
 ### Optional
 * A [CGI](https://www.w3.org/CGI/)-capable web server (to run the web interface)
-* [Git](https://git-scm.com/) (to install from GitHub)
+* [Git](https://git-scm.com) (to install from GitHub)
 
 ## Installation
 1.  Clone this repository into an empty directory:
-
     ```
-    git clone https://github.com/joodicator/mcmapimg
+    git clone https://github.com/joodicator/mcmapimg.git
     cd mcmapimg
     ```
 

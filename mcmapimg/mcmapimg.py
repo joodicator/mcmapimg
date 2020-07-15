@@ -1,19 +1,18 @@
 from __future__ import print_function
 import argparse
-import gzip
 import sys
 import os
 
 import PIL.Image
-import pynbt
+from nbt import nbt
 
 from .colours import base_colours
 from .icons import get_icon
 
-DEFAULT_VERSION = '1.8.1'
-VERSIONS = '1.8.0', '1.8.1'
+DEFAULT_VERSION = '1.8.1+'
+VERSIONS = '1.8.0-', '1.8.1+'
 
-ERROR_COLOUR = 255,0,0,255
+ERROR_COLOUR = 255,0,255,255
 
 try:
     range = xrange
@@ -31,9 +30,8 @@ def main():
     args = parser.parse_args()
 
     if args.version not in VERSIONS:
-        print('Error: "%s" is not a recognised version.'
-            % args.version, file=sys.stderr)
-        print('Acceptable versions are: %s.' % ', '.join(VERSIONS))
+        print(f"Error: {args.version} is not a recognised version.", file=sys.stderr)
+        print(f"Acceptable versions are: {', '.join(VERSIONS)}.")
         sys.exit(2)
 
     if args.in_file == '-':
@@ -50,9 +48,18 @@ def main():
         map_to_img(in_file, out_file, version=args.version, warn=True)
 
 def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
-    nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
-    width, height = nbt['data']['width'].value, nbt['data']['height'].value
-    map_data_to_img(nbt['data']['colors'].value, img_file,
+    nbtfile = nbt.NBTFile(fileobj=nbt_file)
+
+    try:
+        width = nbtfile['data']['width'].value
+    except KeyError:
+        width = 128
+    try:
+        height = nbtfile['data']['height'].value
+    except KeyError:
+        height = 128
+
+    map_data_to_img(nbtfile['data']['colors'].value, img_file,
         version=version, warn=warn, width=width, height=height)
 
 def map_data_to_img(
@@ -62,16 +69,29 @@ def map_data_to_img(
     unknown = set() if warn else None
     for i in range(width * height):
         colour_id = data[i]
-        colour = colour_id_to_rgba(colour_id, version, unknown)
+        colour = colour_id_to_rgba(colour_id, version)
         if colour is None:
             if warn and ('colour', colour_id) not in unknown:
+                print(f"Warning: unknown colour ID {colour_id}.", file=sys.stderr)
                 unknown.add(('colour', colour_id))
-                print('Warning: unknown colour ID %d.' % colour_id,
-                      file=sys.stderr)
             colour = ERROR_COLOUR
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
     img.save(img_file, 'png')    
+
+def colour_id_to_rgba(id, version=VERSIONS[-1]):
+    base_id, shade_id = divmod(id, 4)
+    if base_id not in base_colours:
+        return None
+    r,g,b,a = base_colours[base_id]
+    shade_mul = \
+        180 if shade_id == 0 else \
+        220 if shade_id == 1 else \
+        255 if shade_id == 2 else \
+        220 if shade_id == 3 and version == '1.8.0-' else \
+        135 if shade_id == 3 and version == '1.8.1+' else None
+    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
+    return r,g,b,a
 
 def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
     img = PIL.Image.new('RGBA', (
@@ -83,22 +103,3 @@ def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
                  margin + ((y + height)*scale - icon.size[1])//2)
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
-
-def colour_id_to_rgba(id, version=VERSIONS[-1], unknown=None):
-    base_id, shade_id = divmod(id, 4)
-    if base_id not in base_colours:
-        return None
-    r,g,b,a = base_colours[base_id]
-    shade_mul = \
-        180 if shade_id == 0 else \
-        220 if shade_id == 1 else \
-        255 if shade_id == 2 else \
-        220 if shade_id == 3 and version == '1.8.0' else \
-        135 if shade_id == 3 and version == '1.8.1' else None
-    if shade_mul is None:
-        if unknown is not None and ('shade', shade_id) not in unknown:
-            print('Warning: unknown shade ID %d.' % shade_id, file=sys.stderr)
-            unknown.add(('shade', shade_id))
-    else:
-        r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
-    return r,g,b,a

@@ -17,7 +17,7 @@ from mcmapimg import mcmapimg
 fields = cgi.FieldStorage()
 
 if fields['version'].value not in mcmapimg.VERSIONS:
-    raise Exception('Unknown version: "%s".' % fields['version'])
+    raise Exception(f"Unknown version: {fields['version']}.")
 out_buffer = StringIO()
 mcmapimg.map_to_img(fields['in_file'].file, out_buffer)
 out_data = out_buffer.getvalue()
