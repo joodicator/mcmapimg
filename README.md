@@ -32,7 +32,11 @@ There are three ways to use this tool:
     ./mcmapimg.py --help
     ```
 
-2.  Using the web interface: make accessible by a web server `index.htm` and `map.cgi` - the latter of which is an executable Python script and should be run as a CGI program by the web server - for example, under `http://localhost/mcmapimg`; then navigate to this URL and follow the instructions there.
+2.  Using the web interface: make accessible by a web server `index.htm` and `cgi-bin/map.cgi` - the latter of which is an executable Python script and should be run as a CGI program by the web server - for example, run python's built-in http server:
+    ```
+    python -m http.server --cgi 8000
+    ```
+    Then visit `http://localhost:8000` in your browser and follow the instructions there.
 
 3.  As a library directly from Python:
     ```
