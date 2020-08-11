@@ -41,20 +41,26 @@ There are four ways to use this tool:
     >>> help(mcmapimg)
     ```
 
-4.  In a docker container. First build the image and run the container:
-    ```shell
+4.  In a docker container. First build the image:
+    ```
     docker build -t mcmapimg .
+    ```
+
+    Then run the container:
+    ```
     docker run -it --rm -p 8000:8000 mcmapimg
     ```
-    Then access the webpage:
+
+    Finally access the webpage:
     ```
     http://localhost:8000
     ```
 
     The docker image also supports running from the command line:
-    ```shell
-    cd directory/with/map_files.dat
-
+    ```
+    cd directory/with/map_dat_files/
+    ```
+    ```
     docker run -it --rm -v "$PWD":/usr/src/app/maps \
         mcmapimg ./mcmapimg.py maps/[in_map_file.dat] maps/[out_img_file.png]
     ```
