@@ -12,6 +12,8 @@ from .icons import get_icon
 
 DEFAULT_VERSION = '1.8.1'
 VERSIONS = '1.8.0', '1.8.1'
+DEFAULT_WIDTH = 128
+DEFAULT_HEIGHT = 128
 
 ERROR_COLOUR = 255,0,0,255
 
@@ -51,13 +53,16 @@ def main():
 
 def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
     nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
-    width, height = nbt['data']['width'].value, nbt['data']['height'].value
+    width = nbt['data']['width'].value if 'width' in nbt['data'] else None
+    height = nbt['data']['height'].value if 'height' in nbt['data'] else None
     map_data_to_img(nbt['data']['colors'].value, img_file,
         version=version, warn=warn, width=width, height=height)
 
 def map_data_to_img(
-    data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128
+    data, img_file, version=DEFAULT_VERSION, warn=False, width=None, height=None
 ):
+    width = DEFAULT_WIDTH if width is None else width
+    height = DEFAULT_HEIGHT if height is None else height
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set() if warn else None
     for i in range(width * height):
@@ -73,7 +78,10 @@ def map_data_to_img(
         img.putpixel((x, y), colour)
     img.save(img_file, 'png')    
 
-def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
+def map_icons_to_img(
+    icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
+    margin=8, scale=1
+):
     img = PIL.Image.new('RGBA', (
         width*scale + 2*margin*scale, height*scale + 2*margin*scale))
     icons = list(icons)
