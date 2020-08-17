@@ -11,6 +11,8 @@ from .icons import get_icon
 
 DEFAULT_VERSION = '1.8.1+'
 VERSIONS = '1.8.0-', '1.8.1+'
+DEFAULT_WIDTH = 128
+DEFAULT_HEIGHT = 128
 
 ERROR_COLOUR = 248,0,248,255
 
@@ -49,35 +51,43 @@ def main():
 
 def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
     nbtfile = nbt.NBTFile(fileobj=nbt_file)
-
-    try:
-        width = nbtfile['data']['width'].value
-    except KeyError:
-        width = 128
-    try:
-        height = nbtfile['data']['height'].value
-    except KeyError:
-        height = 128
-
+    width = nbt['data']['width'].value if 'width' in nbt['data'] else None
+    height = nbt['data']['height'].value if 'height' in nbt['data'] else None
     map_data_to_img(nbtfile['data']['colors'].value, img_file,
         version=version, warn=warn, width=width, height=height)
 
 def map_data_to_img(
-    data, img_file, version=DEFAULT_VERSION, warn=False, width=128, height=128
+    data, img_file, version=DEFAULT_VERSION, warn=False, width=None, height=None
 ):
+    width = DEFAULT_WIDTH if width is None else width
+    height = DEFAULT_HEIGHT if height is None else height
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set() if warn else None
     for i in range(width * height):
         colour_id = data[i]
         colour = colour_id_to_rgba(colour_id, version)
         if colour is None:
-            if warn and ('colour', colour_id) not in unknown:
+            if warn and colour_id not in unknown:
                 print(f"Warning: unknown colour ID {colour_id}.", file=sys.stderr)
-                unknown.add(('colour', colour_id))
+                unknown.add(colour_id)
             colour = ERROR_COLOUR
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
     img.save(img_file, 'png')    
+
+def map_icons_to_img(
+    icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
+    margin=8, scale=1
+):
+    img = PIL.Image.new('RGBA', (
+        width*scale + 2*margin*scale, height*scale + 2*margin*scale))
+    icons = list(icons)
+    for (type, direction, (x, y)) in icons:
+        icon = get_icon(type, direction, scale)
+        point = (margin + ((x + width)*scale - icon.size[0])//2,
+                 margin + ((y + height)*scale - icon.size[1])//2)
+        img.paste(icon, point, icon)
+    img.save(img_file, 'png')
 
 def colour_id_to_rgba(id, version=VERSIONS[-1]):
     base_id, shade_id = divmod(id, 4)
@@ -92,14 +102,3 @@ def colour_id_to_rgba(id, version=VERSIONS[-1]):
         135 if shade_id == 3 and version == '1.8.1+' else None
     r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
     return r,g,b,a
-
-def map_icons_to_img(icons, img_file, width=128, height=128, margin=8, scale=1):
-    img = PIL.Image.new('RGBA', (
-        width*scale + 2*margin*scale, height*scale + 2*margin*scale))
-    icons = list(icons)
-    for (type, direction, (x, y)) in icons:
-        icon = get_icon(type, direction, scale)
-        point = (margin + ((x + width)*scale - icon.size[0])//2,
-                 margin + ((y + height)*scale - icon.size[1])//2)
-        img.paste(icon, point, icon)
-    img.save(img_file, 'png')
