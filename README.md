@@ -10,7 +10,7 @@ A command-line utility, web application, and Python library to convert Minecraft
 ### Required
 * [Python](http://python.org) 3
 * [Python Imaging Library](https://pypi.org/project/PIL/)
-* [NBT](https://pypi.org/project/NBT/)
+* [PyNBT](https://pypi.org/project/PyNBT/)
 
 ### Optional
 * A [CGI](https://www.w3.org/CGI/)-capable web server (to run the web interface)

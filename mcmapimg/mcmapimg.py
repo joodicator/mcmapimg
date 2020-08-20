@@ -1,10 +1,11 @@
 from __future__ import print_function
 import argparse
+import gzip
 import sys
 import os
 
 import PIL.Image
-from nbt import nbt
+import pynbt
 
 from .colours import base_colours
 from .icons import get_icon
@@ -50,17 +51,17 @@ def main():
         map_to_img(in_file, out_file, version=args.version, warn=True)
 
 def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
-    nbtfile = nbt.NBTFile(fileobj=nbt_file)
+    nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
     width = nbt['data']['width'].value if 'width' in nbt['data'] else None
     height = nbt['data']['height'].value if 'height' in nbt['data'] else None
-    map_data_to_img(nbtfile['data']['colors'].value, img_file,
+    map_data_to_img(nbt['data']['colors'].value, img_file,
         version=version, warn=warn, width=width, height=height)
 
 def map_data_to_img(
     data, img_file, version=DEFAULT_VERSION, warn=False, width=None, height=None
 ):
-    width = DEFAULT_WIDTH if width is None else width
-    height = DEFAULT_HEIGHT if height is None else height
+    width = width or DEFAULT_WIDTH
+    height = height or DEFAULT_HEIGHT
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set() if warn else None
     for i in range(width * height):
@@ -73,7 +74,21 @@ def map_data_to_img(
             colour = ERROR_COLOUR
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
-    img.save(img_file, 'png')    
+    img.save(img_file, 'png')  
+
+def colour_id_to_rgba(id, version=VERSIONS[-1]):
+    base_id, shade_id = divmod(id, 4)
+    if base_id not in base_colours:
+        return None
+    r,g,b,a = base_colours[base_id]
+    shade_mul = \
+        180 if shade_id == 0 else \
+        220 if shade_id == 1 else \
+        255 if shade_id == 2 else \
+        220 if shade_id == 3 and version == '1.8.0-' else \
+        135 if shade_id == 3 and version == '1.8.1+' else None
+    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
+    return r,g,b,a  
 
 def map_icons_to_img(
     icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
@@ -88,17 +103,3 @@ def map_icons_to_img(
                  margin + ((y + height)*scale - icon.size[1])//2)
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
-
-def colour_id_to_rgba(id, version=VERSIONS[-1]):
-    base_id, shade_id = divmod(id, 4)
-    if base_id not in base_colours:
-        return None
-    r,g,b,a = base_colours[base_id]
-    shade_mul = \
-        180 if shade_id == 0 else \
-        220 if shade_id == 1 else \
-        255 if shade_id == 2 else \
-        220 if shade_id == 3 and version == '1.8.0-' else \
-        135 if shade_id == 3 and version == '1.8.1+' else None
-    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
-    return r,g,b,a
