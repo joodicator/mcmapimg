@@ -1,11 +1,11 @@
 from __future__ import print_function
-import argparse
-import gzip
+from argparse import ArgumentParser
+from gzip import GzipFile
 import sys
 import os
 
 import PIL.Image
-import pynbt
+from pynbt import NBTFile
 
 from .colours import base_colours
 from .icons import get_icon
@@ -23,13 +23,10 @@ except NameError:
     pass
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('in_file',
-        metavar='IN_DAT_FILE', default='-', nargs='?')
-    parser.add_argument('out_file',
-        metavar='OUT_PNG_FILE', default='-', nargs='?')
-    parser.add_argument('--version', dest='version',
-        metavar='|'.join(VERSIONS), default=DEFAULT_VERSION)
+    parser = ArgumentParser()
+    parser.add_argument('in_file',   metavar='IN_DAT_FILE',      default='-',             nargs='?'     )
+    parser.add_argument('out_file',  metavar='OUT_PNG_FILE',     default='-',             nargs='?'     )
+    parser.add_argument('--version', metavar='|'.join(VERSIONS), default=DEFAULT_VERSION, dest='version')
     args = parser.parse_args()
 
     if args.version not in VERSIONS:
@@ -51,7 +48,7 @@ def main():
         map_to_img(in_file, out_file, version=args.version, warn=True)
 
 def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
-    nbt = pynbt.NBTFile(io=gzip.GzipFile(mode='r', fileobj=nbt_file))
+    nbt = NBTFile(io=GzipFile(mode='r', fileobj=nbt_file))
     width = nbt['data']['width'].value if 'width' in nbt['data'] else None
     height = nbt['data']['height'].value if 'height' in nbt['data'] else None
     map_data_to_img(nbt['data']['colors'].value, img_file,
@@ -64,42 +61,46 @@ def map_data_to_img(
     height = height or DEFAULT_HEIGHT
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set() if warn else None
+
     for i in range(width * height):
         colour_id = data[i]
         colour = colour_id_to_rgba(colour_id, version)
+
         if colour is None:
             if warn and colour_id not in unknown:
                 print(f"Warning: unknown colour ID {colour_id}.", file=sys.stderr)
                 unknown.add(colour_id)
             colour = ERROR_COLOUR
+
         y, x = divmod(i, width)
         img.putpixel((x, y), colour)
-    img.save(img_file, 'png')  
+    img.save(img_file, 'png')
 
-def colour_id_to_rgba(id, version=VERSIONS[-1]):
+def colour_id_to_rgba(id, version=DEFAULT_VERSION):
     base_id, shade_id = divmod(id, 4)
     if base_id not in base_colours:
         return None
     r,g,b,a = base_colours[base_id]
+
     shade_mul = \
         180 if shade_id == 0 else \
         220 if shade_id == 1 else \
         255 if shade_id == 2 else \
         220 if shade_id == 3 and version == '1.8.0-' else \
         135 if shade_id == 3 and version == '1.8.1+' else None
-    r,g,b = (shade_mul*r)//255, (shade_mul*g)//255, (shade_mul*b)//255
-    return r,g,b,a  
+
+    r,g,b = (r*shade_mul)//255, (g*shade_mul)//255, (b*shade_mul)//255
+    return r,g,b,a
 
 def map_icons_to_img(
-    icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT,
-    margin=8, scale=1
+    icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, margin=8, scale=1
 ):
-    img = PIL.Image.new('RGBA', (
-        width*scale + 2*margin*scale, height*scale + 2*margin*scale))
+    img = PIL.Image.new('RGBA', ((width + 2*margin)*scale, (height + 2*margin)*scale))
     icons = list(icons)
+
     for (type, direction, (x, y)) in icons:
         icon = get_icon(type, direction, scale)
-        point = (margin + ((x + width)*scale - icon.size[0])//2,
+        point = (margin + ((x + width )*scale - icon.size[0])//2,
                  margin + ((y + height)*scale - icon.size[1])//2)
         img.paste(icon, point, icon)
     img.save(img_file, 'png')
