@@ -27,7 +27,7 @@ def main():
     parser.add_argument('in_file',   metavar='IN_DAT_FILE',
                         default='-', nargs='?')
     parser.add_argument('out_file',  metavar='OUT_PNG_FILE',
-                        default='-', nargs='?'     )
+                        default='-', nargs='?')
     parser.add_argument('--version', metavar='|'.join(VERSIONS),
                         default=DEFAULT_VERSION, dest='version')
     args = parser.parse_args()
@@ -98,9 +98,9 @@ def colour_id_to_rgba(id, version=DEFAULT_VERSION):
 
 def map_icons_to_img(
     icons, img_file, width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT, margin=8,
-    scale=1,
+    scale=1
 ):
-    img = PIL.Image.new('RGBA', ((width + 2*margin)*scale,
+    img = PIL.Image.new('RGBA', ((width  + 2*margin)*scale,
                                  (height + 2*margin)*scale))
     icons = list(icons)
 
