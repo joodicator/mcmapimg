@@ -61,8 +61,8 @@ def map_to_img(nbt_file, img_file, version=DEFAULT_VERSION, warn=False):
 def map_data_to_img(
     data, img_file, version=DEFAULT_VERSION, warn=False, width=None, height=None
 ):
-    width = width or DEFAULT_WIDTH
-    height = height or DEFAULT_HEIGHT
+    width = DEFAULT_WIDTH if width is None else width
+    height = DEFAULT_HEIGHT if height is None else height
     img = PIL.Image.new('RGBA', (width, height))
     unknown = set() if warn else None
 
